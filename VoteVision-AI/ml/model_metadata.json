@@ -1,0 +1,38 @@
+{
+  "model_type": "RandomForestClassifier",
+  "n_estimators": 200,
+  "n_features": 12,
+  "n_samples": 78,
+  "cv_accuracy_mean": 0.9875,
+  "cv_accuracy_std": 0.024999999999999998,
+  "cv_f1_mean": 0.9846153846153847,
+  "cv_roc_auc_mean": 0.9968253968253968,
+  "feature_columns": [
+    "previous_vote_share",
+    "turnout",
+    "swing",
+    "margin_previous",
+    "incumbency",
+    "urban_rural_ratio",
+    "literacy_rate",
+    "population_density",
+    "num_candidates",
+    "party_encoded",
+    "alliance_encoded",
+    "state_encoded"
+  ],
+  "feature_importances": {
+    "previous_vote_share": 0.33639088322098354,
+    "turnout": 0.009982545196933644,
+    "swing": 0.0825175389414721,
+    "margin_previous": 0.3700277481564817,
+    "incumbency": 0.08213625419597735,
+    "urban_rural_ratio": 0.007348983865713649,
+    "literacy_rate": 0.010523481513106794,
+    "population_density": 0.006409493157883524,
+    "num_candidates": 0.003064780205719525,
+    "party_encoded": 0.05589157091708453,
+    "alliance_encoded": 0.02057501077815284,
+    "state_encoded": 0.015131709850490829
+  }
+}

@@ -1,0 +1,70 @@
+constituency,state,candidate_name,party,previous_vote_share,turnout,swing,margin_previous,incumbency,urban_rural_ratio,literacy_rate,population_density,num_candidates,alliance,winner,election_year
+Bhabanipur,West Bengal,Mamata Banerjee,TMC,58.32,62.1,3.2,21.4,1,0.88,85.3,4200,5,TMC-Alliance,1,2026
+Bhabanipur,West Bengal,Priyanka Tibrewal,BJP,33.45,62.1,-1.8,0.0,0,0.88,85.3,4200,5,NDA,0,2026
+Bhabanipur,West Bengal,Srikumar Mukherjee,CPI(M),5.12,62.1,-2.1,0.0,0,0.88,85.3,4200,5,Left-INC,0,2026
+Nandigram,West Bengal,Suvendu Adhikari,BJP,48.26,72.3,2.5,0.4,1,0.35,74.2,980,6,NDA,1,2026
+Nandigram,West Bengal,Manna Sahu,TMC,47.85,72.3,1.2,0.0,0,0.35,74.2,980,6,TMC-Alliance,0,2026
+Jadavpur,West Bengal,Debasish Kumar,TMC,51.23,65.4,2.1,16.3,1,0.85,86.7,3100,5,TMC-Alliance,1,2026
+Jadavpur,West Bengal,Anirban Ganguly,BJP,34.78,65.4,0.8,0.0,0,0.85,86.7,3100,5,NDA,0,2026
+Asansol South,West Bengal,Agnimitra Paul,BJP,46.12,60.8,3.5,8.4,1,0.72,74.8,2200,7,NDA,1,2026
+Asansol South,West Bengal,Abdul Basit Ichapuria,TMC,37.68,60.8,-2.1,0.0,0,0.72,74.8,2200,7,TMC-Alliance,0,2026
+Siliguri,West Bengal,Shankar Ghosh,BJP,44.56,67.2,4.2,5.1,0,0.68,78.3,1800,8,NDA,1,2026
+Siliguri,West Bengal,Om Prakash Misra,TMC,39.43,67.2,1.5,0.0,0,0.68,78.3,1800,8,TMC-Alliance,0,2026
+Kolkata Port,West Bengal,Firhad Hakim,TMC,62.45,58.9,1.8,30.2,1,0.92,88.2,3800,4,TMC-Alliance,1,2026
+Kolkata Port,West Bengal,Rajarshi Bhattacharya,BJP,28.23,58.9,-3.2,0.0,0,0.92,88.2,3800,4,NDA,0,2026
+Krishnanagar North,West Bengal,Mahua Moitra,TMC,53.12,66.7,2.8,18.5,1,0.48,72.4,1200,6,TMC-Alliance,1,2026
+Krishnanagar North,West Bengal,Koushik Mondal,BJP,34.67,66.7,-1.2,0.0,0,0.48,72.4,1200,6,NDA,0,2026
+Chennai Egmore,Tamil Nadu,Anbazhagan S,DMK,54.23,63.2,2.1,22.4,1,0.94,88.7,3900,5,INDIA-TN,1,2026
+Chennai Egmore,Tamil Nadu,R Srinivasan,AIADMK,31.45,63.2,-3.8,0.0,0,0.94,88.7,3900,5,AIADMK-NDA,0,2026
+Chennai Egmore,Tamil Nadu,J Jayavardhan,BJP,8.12,63.2,2.5,0.0,0,0.94,88.7,3900,5,NDA,0,2026
+Coimbatore North,Tamil Nadu,Karunakaran N,DMK,42.34,61.8,1.5,9.2,0,0.86,82.5,2800,7,INDIA-TN,1,2026
+Coimbatore North,Tamil Nadu,Vanathi Srinivasan,BJP,38.56,61.8,5.8,0.0,0,0.86,82.5,2800,7,NDA,0,2026
+Coimbatore North,Tamil Nadu,Singai G Ramachandran,AIADMK,14.12,61.8,-2.4,0.0,0,0.86,82.5,2800,7,AIADMK-NDA,0,2026
+Madurai Central,Tamil Nadu,S Anbalarasu,DMK,55.67,65.4,1.8,24.3,1,0.80,77.8,2200,5,INDIA-TN,1,2026
+Madurai Central,Tamil Nadu,R Sridharan,AIADMK,29.34,65.4,-3.1,0.0,0,0.80,77.8,2200,5,AIADMK-NDA,0,2026
+Salem West,Tamil Nadu,Kovai Shekar,AIADMK,48.23,62.7,3.2,10.5,1,0.65,72.3,1600,6,AIADMK-NDA,1,2026
+Salem West,Tamil Nadu,Tenkasi Mahesh,DMK,37.67,62.7,-1.5,0.0,0,0.65,72.3,1600,6,INDIA-TN,0,2026
+Tirunelveli,Tamil Nadu,Rajan A,DMK,52.45,64.3,2.4,18.7,0,0.72,79.4,1900,6,INDIA-TN,1,2026
+Tirunelveli,Tamil Nadu,Nainar Nagenthran,AIADMK,33.78,64.3,-1.8,0.0,0,0.72,79.4,1900,6,AIADMK-NDA,0,2026
+Thiruvananthapuram,Kerala,Antony Raju,LDF,45.23,71.8,2.1,8.2,1,0.82,96.2,1600,5,LDF,1,2026
+Thiruvananthapuram,Kerala,K Muraleedharan,UDF,38.56,71.8,-1.5,0.0,0,0.82,96.2,1600,5,UDF,0,2026
+Thiruvananthapuram,Kerala,V Muraleedharan,BJP,14.12,71.8,3.2,0.0,0,0.82,96.2,1600,5,NDA,0,2026
+Kozhikode North,Kerala,Ahamed Devarkovil,UDF,49.34,69.2,1.8,12.5,0,0.75,94.8,1400,5,UDF,1,2026
+Kozhikode North,Kerala,N Shamsuddeen,LDF,36.78,69.2,-2.4,0.0,0,0.75,94.8,1400,5,LDF,0,2026
+Kochi,Kerala,Hibi Eden,UDF,52.12,67.5,2.5,18.3,1,0.95,96.8,3200,4,UDF,1,2026
+Kochi,Kerala,V D Satheesan,LDF,33.45,67.5,-1.8,0.0,0,0.95,96.8,3200,4,LDF,0,2026
+Thrissur,Kerala,K Radhakrishnan,LDF,48.56,70.3,3.1,12.4,1,0.70,93.7,1300,6,LDF,1,2026
+Thrissur,Kerala,Suresh Gopi,BJP,37.23,70.3,6.5,0.0,0,0.70,93.7,1300,6,NDA,0,2026
+Thrissur,Kerala,Rahul Mamkoottathil,UDF,12.34,70.3,-3.8,0.0,0,0.70,93.7,1300,6,UDF,0,2026
+Kannur,Kerala,P K Jayalakshmi,LDF,56.78,72.1,1.5,25.3,1,0.65,95.4,1200,5,LDF,1,2026
+Kannur,Kerala,T V Rajesh,UDF,31.45,72.1,-2.1,0.0,0,0.65,95.4,1200,5,UDF,0,2026
+Guwahati East,Assam,Siddhartha Bhattacharya,BJP,52.34,65.8,2.8,18.6,1,0.88,87.2,2100,6,NDA,1,2026
+Guwahati East,Assam,Ramendra Narayan Kalita,INC,33.78,65.8,-1.5,0.0,0,0.88,87.2,2100,6,INDIA,0,2026
+Dispur,Assam,Atul Bora,BJP,54.23,67.4,3.1,22.4,1,0.90,88.5,2300,5,NDA,1,2026
+Dispur,Assam,Apurba Bhattacharjee,INC,32.45,67.4,-2.3,0.0,0,0.90,88.5,2300,5,INDIA,0,2026
+Jorhat,Assam,Hitendra Nath Goswami,BJP,48.56,64.2,1.5,12.3,0,0.55,74.3,1100,7,NDA,1,2026
+Jorhat,Assam,Sibamoni Bora,INC,36.23,64.2,-0.8,0.0,0,0.55,74.3,1100,7,INDIA,0,2026
+Dibrugarh,Assam,Prasanta Phukan,BJP,51.34,66.8,2.4,16.2,1,0.62,76.8,1400,6,NDA,1,2026
+Dibrugarh,Assam,Lurin Jyoti Gogoi,INC,35.12,66.8,1.2,0.0,0,0.62,76.8,1400,6,INDIA,0,2026
+Silchar,Assam,Dilip Kumar Paul,BJP,49.78,63.5,3.5,14.5,1,0.68,75.2,1300,7,NDA,1,2026
+Silchar,Assam,Sushmita Dev,INC,35.23,63.5,-0.8,0.0,0,0.68,75.2,1300,7,INDIA,0,2026
+Mysuru Royal,Karnataka,Yatindra Siddaramaiah,INC,48.56,61.4,3.2,12.4,1,0.72,82.1,1800,6,INC-JDS,1,2026
+Mysuru Royal,Karnataka,G T Devegowda,BJP,36.23,61.4,-2.1,0.0,0,0.72,82.1,1800,6,NDA,0,2026
+Bengaluru South,Karnataka,Siddaramaih B S,INC,44.34,59.8,2.8,8.5,0,0.94,89.3,3800,7,INC-JDS,1,2026
+Bengaluru South,Karnataka,Ramalinga Reddy,BJP,35.78,59.8,-1.5,0.0,0,0.94,89.3,3800,7,NDA,0,2026
+Hubli Dharwad West,Karnataka,Jagadish Shettar,INC,46.23,60.2,4.8,9.6,0,0.68,76.4,1600,6,INC-JDS,1,2026
+Hubli Dharwad West,Karnataka,Mahesh Tenginkai,BJP,36.56,60.2,-2.5,0.0,0,0.68,76.4,1600,6,NDA,0,2026
+Mangaluru North,Karnataka,Mohiuddin Bawa,INC,42.45,63.7,3.5,8.2,0,0.80,87.2,2200,7,INC-JDS,1,2026
+Mangaluru North,Karnataka,Capt. Brijesh Chowta,BJP,34.23,63.7,-0.8,0.0,0,0.80,87.2,2200,7,NDA,0,2026
+Belagavi North,Karnataka,Lakshmi Hebbalkar,INC,50.12,62.4,2.5,16.8,1,0.60,73.5,1400,6,INC-JDS,1,2026
+Belagavi North,Karnataka,Sanjay Patil,BJP,33.34,62.4,-1.8,0.0,0,0.60,73.5,1400,6,NDA,0,2026
+Patna Sahib,Bihar,Nitin Naveen,BJP,52.34,57.8,2.1,18.4,0,0.78,71.4,2200,7,NDA,1,2026
+Patna Sahib,Bihar,Shakeel Ahmad Khan,INC,35.12,57.8,-1.5,0.0,0,0.78,71.4,2200,7,INDIA,0,2026
+Danapur,Bihar,Ritlal Yadav,RJD,48.23,59.4,3.2,12.5,1,0.65,66.8,1500,7,INDIA,1,2026
+Danapur,Bihar,Sanjay Tiwari,BJP,36.78,59.4,-0.8,0.0,0,0.65,66.8,1500,7,NDA,0,2026
+Muzaffarpur,Bihar,Suresh Sharma,BJP,50.45,56.3,1.8,16.2,1,0.55,63.2,1200,8,NDA,1,2026
+Muzaffarpur,Bihar,Vikram Kumar,RJD,34.23,56.3,-2.4,0.0,0,0.55,63.2,1200,8,INDIA,0,2026
+Gaya Town,Bihar,Prem Kumar,BJP,51.56,58.7,2.5,18.8,1,0.62,68.5,1400,6,NDA,1,2026
+Gaya Town,Bihar,Kumari Anita,RJD,32.78,58.7,-1.8,0.0,0,0.62,68.5,1400,6,INDIA,0,2026
+Ara,Bihar,Arun Kumar Sinha,BJP,48.34,57.1,2.8,14.3,0,0.52,62.4,1100,8,NDA,1,2026
+Ara,Bihar,Kumar Sarvjeet,RJD,33.67,57.1,-1.2,0.0,0,0.52,62.4,1100,8,INDIA,0,2026

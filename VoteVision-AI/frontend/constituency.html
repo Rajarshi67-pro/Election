@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="VoteVision AI – Constituency prediction for 2024 General & 2026 Assembly elections">
+  <title>Constituency Prediction – VoteVision AI</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="spinner-overlay" id="spinner"><div class="spinner"></div></div>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand"><div class="logo-icon">🗳️</div><span>VoteVision AI</span></a>
+    <button class="nav-toggle" aria-label="Menu">☰</button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="constituency.html">Predict</a></li>
+      <li><a href="candidates.html">Candidates</a></li>
+    </ul>
+  </nav>
+  <div class="page-wrapper">
+    <section class="section" style="padding-top:2rem">
+      <div class="container">
+        <div id="constSwitcher"></div>
+        <div class="section-header" style="text-align:left">
+          <h2>🔮 Constituency <span class="gradient-text">Prediction</span></h2>
+          <p style="margin:0" id="constSubtitle">Select a constituency and simulate swing to predict outcomes.</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="card" id="controlPanel">
+          <div class="prediction-controls">
+            <div class="form-group">
+              <label for="stateSelect">State</label>
+              <select id="stateSelect"><option value="">Select State</option></select>
+            </div>
+            <div class="form-group">
+              <label for="constituencySelect">Constituency</label>
+              <select id="constituencySelect" disabled><option value="">Select Constituency</option></select>
+            </div>
+          </div>
+          <div class="slider-container">
+            <label><span>Swing Adjustment</span><span class="slider-value" id="swingLabel">0.0%</span></label>
+            <input type="range" id="swingSlider" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div style="margin-top:1.25rem">
+            <button class="btn btn-primary" id="predictBtn" disabled>🔮 Predict Winner</button>
+          </div>
+        </div>
+
+        <!-- Constituency Info -->
+        <div class="card mt-3 hidden" id="constituencyInfo">
+          <h3 style="margin-bottom:1rem" id="infoTitle">Constituency Info</h3>
+          <div class="stat-grid" style="grid-template-columns:repeat(4,1fr)" id="infoStats"></div>
+        </div>
+
+        <!-- Results -->
+        <div class="hidden mt-3" id="resultsSection">
+          <div class="two-col">
+            <div class="prediction-result" id="predictionResult"></div>
+            <div class="chart-container"><h3>📊 Win Probability</h3><div class="chart-wrapper"><canvas id="predictionChart"></canvas></div></div>
+          </div>
+          <div class="chart-container mt-3">
+            <h3>📋 Candidate Breakdown</h3>
+            <div style="overflow-x:auto"><table class="data-table" id="candidateBreakdown"><thead><tr><th>Candidate</th><th>Party</th><th>Win Prob.</th><th>Confidence</th><th>Result</th></tr></thead><tbody></tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer class="footer"><div class="container"><p>© 2024–2026 VoteVision AI</p></div></footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/constituency.js"></script>
+</body>
+</html>

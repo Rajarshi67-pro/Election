@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <meta name="description" content="VoteVision AI – Candidate profiles for 2024 General & 2026 Assembly elections">
-  <title>Candidates – VoteVision AI</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VoteVision AI – Comprehensive candidate profiles and affidavits for 2024 General & 2026 Assembly elections.">
+  <title>Candidate Directory – VoteVision AI</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="spinner-overlay" id="spinner"><div class="spinner"></div></div>
+  <div class="spinner-overlay" id="spinner" aria-hidden="true"><div class="spinner"></div></div>
+
+  <!-- Navigation -->
   <nav class="navbar">
-    <a href="index.html" class="nav-brand"><div class="logo-icon">🗳️</div><span>VoteVision AI</span></a>
-    <button class="nav-toggle" aria-label="Menu">☰</button>
+    <a href="index.html" class="nav-brand">
+      <div class="logo-icon">🗳️</div>
+      <span>VoteVision AI</span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle Navigation">☰</button>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="dashboard.html">Dashboard</a></li>
@@ -18,28 +24,70 @@
       <li><a href="candidates.html">Candidates</a></li>
     </ul>
   </nav>
+
   <div class="page-wrapper">
-    <section class="section" style="padding-top:2rem">
+    <section class="section" style="padding-top: 2rem;">
       <div class="container">
+        <!-- Switcher & Header -->
         <div id="candSwitcher"></div>
-        <div class="section-header" style="text-align:left">
-          <h2>👥 Candidate <span class="gradient-text">Directory</span></h2>
-          <p style="margin:0" id="candSubtitle">Browse key candidates across Indian constituencies.</p>
+        <div class="section-header" style="text-align: left;">
+          <h2>👥 Candidate <span class="gradient-text">Directory & Profiles</span></h2>
+          <p style="margin: 0;" id="candSubtitle">Browse and filter key candidates, assets, criminal cases, and electoral history.</p>
         </div>
-        <!-- Filters -->
+
+        <!-- Filter Controls -->
         <div class="card mb-3">
-          <div class="prediction-controls" style="grid-template-columns:1fr 1fr 1fr">
-            <div class="form-group" style="margin:0"><label for="filterState">State</label><select id="filterState"><option value="">All States</option></select></div>
-            <div class="form-group" style="margin:0"><label for="filterParty">Party</label><select id="filterParty"><option value="">All Parties</option></select></div>
-            <div class="form-group" style="margin:0"><label for="filterSearch">Search</label><input type="text" id="filterSearch" placeholder="Search by name…" style="background-image:none"></div>
+          <div class="prediction-controls" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="form-group" style="margin: 0;">
+              <label for="filterState">State</label>
+              <select id="filterState">
+                <option value="">All States</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="filterParty">Party</label>
+              <select id="filterParty">
+                <option value="">All Parties</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="filterAlliance">Alliance</label>
+              <select id="filterAlliance">
+                <option value="">All Alliances</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="filterSearch">Search Name / Constituency</label>
+              <input type="text" id="filterSearch" placeholder="Type to search..." style="background-image: none;">
+            </div>
           </div>
         </div>
-        <p class="mb-2" style="color:var(--text-secondary)" id="candidateCount">Loading candidates…</p>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <p style="color: var(--text-secondary); margin: 0;" id="candidateCount">Loading candidate records...</p>
+        </div>
+
+        <!-- Candidate Cards Grid -->
         <div class="card-grid" id="candidateGrid"></div>
       </div>
     </section>
-    <footer class="footer"><div class="container"><p>© 2024–2026 VoteVision AI</p></div></footer>
+
+    <!-- Candidate Detail Modal -->
+    <div id="candidateModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-content card">
+        <button class="modal-close" id="modalCloseBtn" aria-label="Close modal">×</button>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>© 2024–2026 VoteVision AI – Explainable Election Intelligence Platform</p>
+      </div>
+    </footer>
   </div>
+
   <script src="js/api.js"></script>
   <script src="js/candidates.js"></script>
 </body>

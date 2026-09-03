@@ -3,16 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="VoteVision AI – AI-powered prediction platform for Indian elections: 2024 General & 2026 Assembly">
-  <title>VoteVision AI – Indian Election Prediction Platform</title>
+  <meta name="description" content="VoteVision AI – Explainable election intelligence and forecasting platform for Indian General and Assembly elections.">
+  <title>VoteVision AI – Explainable Election Intelligence & Forecasting</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="spinner-overlay" id="spinner"><div class="spinner"></div></div>
+  <div class="spinner-overlay" id="spinner" aria-hidden="true"><div class="spinner"></div></div>
 
+  <!-- Navigation -->
   <nav class="navbar">
-    <a href="index.html" class="nav-brand"><div class="logo-icon">🗳️</div><span>VoteVision AI</span></a>
-    <button class="nav-toggle" aria-label="Menu">☰</button>
+    <a href="index.html" class="nav-brand">
+      <div class="logo-icon">🗳️</div>
+      <span>VoteVision AI</span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle Navigation">☰</button>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="dashboard.html">Dashboard</a></li>
@@ -22,66 +26,162 @@
   </nav>
 
   <div class="page-wrapper">
-    <!-- Hero -->
+    <!-- Disclaimer Banner -->
+    <div class="disclaimer-banner">
+      <div class="container">
+        <span>⚠️ <strong>Disclaimer:</strong> VoteVision AI provides probabilistic machine learning forecasts for analytical and educational purposes. Predictions are not official election outcomes.</span>
+      </div>
+    </div>
+
+    <!-- Hero Section -->
     <section class="hero" id="heroSection">
       <div class="container hero-content">
-        <!-- Election Switcher -->
-        <div id="heroSwitcher" style="margin-bottom:1.5rem"></div>
+        <div id="heroSwitcher" style="margin-bottom: 1.5rem;"></div>
 
-        <div class="hero-badge"><span class="dot"></span> <span id="heroLiveLabel">AI-Powered Prediction Engine</span></div>
-        <h1 id="heroTitle">Predict the Future of<br><span class="gradient-text" id="heroSubtitle">Indian Democracy</span></h1>
-        <p id="heroDesc">Harness the power of machine learning to forecast election outcomes with real-time swing analysis and demographic modelling.</p>
+        <div class="hero-badge">
+          <span class="dot"></span>
+          <span id="heroLiveLabel">Explainable Election Intelligence & Forecasting</span>
+        </div>
+        <h1 id="heroTitle">
+          Predict the Future of<br>
+          <span class="gradient-text" id="heroSubtitle">Indian Democracy</span>
+        </h1>
+        <p id="heroDesc">
+          Harness the power of machine learning and political analytics to forecast constituency outcomes with explainable AI, real-time swing analysis, and demographic modeling.
+        </p>
         <div class="hero-actions">
           <a href="constituency.html" class="btn btn-primary">🔮 Start Predicting</a>
-          <a href="dashboard.html" class="btn btn-secondary">📊 View Dashboard</a>
+          <a href="dashboard.html" class="btn btn-secondary">📊 View Analytics Dashboard</a>
         </div>
       </div>
     </section>
 
-    <!-- Stats -->
+    <!-- Key Statistics -->
     <section class="section">
       <div class="container">
         <div class="stat-grid" id="homeStats">
-          <div class="stat-card animate-in"><div class="stat-icon blue">📍</div><div class="stat-info"><h3 id="totalConstituencies">--</h3><p>Constituencies Tracked</p></div></div>
-          <div class="stat-card animate-in"><div class="stat-icon green">🏛️</div><div class="stat-info"><h3 id="totalStates">--</h3><p>States & UTs</p></div></div>
-          <div class="stat-card animate-in"><div class="stat-icon purple">👥</div><div class="stat-info"><h3 id="totalCandidates">--</h3><p>Candidates Analyzed</p></div></div>
-          <div class="stat-card animate-in"><div class="stat-icon orange">📈</div><div class="stat-info"><h3 id="avgTurnout">--</h3><p>Avg Voter Turnout</p></div></div>
+          <div class="stat-card animate-in">
+            <div class="stat-icon blue">📍</div>
+            <div class="stat-info">
+              <h3 id="totalConstituencies">--</h3>
+              <p>Constituencies Tracked</p>
+            </div>
+          </div>
+          <div class="stat-card animate-in">
+            <div class="stat-icon green">🏛️</div>
+            <div class="stat-info">
+              <h3 id="totalStates">--</h3>
+              <p>States & UTs Covered</p>
+            </div>
+          </div>
+          <div class="stat-card animate-in">
+            <div class="stat-icon purple">👥</div>
+            <div class="stat-info">
+              <h3 id="totalCandidates">--</h3>
+              <p>Candidates Analyzed</p>
+            </div>
+          </div>
+          <div class="stat-card animate-in">
+            <div class="stat-icon orange">📈</div>
+            <div class="stat-info">
+              <h3 id="avgTurnout">--</h3>
+              <p>Avg Voter Turnout</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Assembly Election Info (only shown in assembly mode) -->
+    <!-- Assembly 2026 Info Panel -->
     <section class="section hidden" id="assemblyInfoSection">
       <div class="container">
-        <div class="section-header"><h2>🗓️ 2026 Assembly <span class="gradient-text">Elections</span></h2><p>Upcoming state Vidhan Sabha elections covered by VoteVision AI.</p></div>
+        <div class="section-header">
+          <h2>🗓️ 2026 Vidhan Sabha <span class="gradient-text">Elections</span></h2>
+          <p>Key upcoming state assembly elections tracked in VoteVision AI.</p>
+        </div>
         <div class="election-info-grid" id="assemblyInfoGrid"></div>
       </div>
     </section>
 
-    <!-- Features -->
+    <!-- Battleground Highlights -->
     <section class="section">
       <div class="container">
-        <div class="section-header"><h2>Why <span class="gradient-text">VoteVision AI</span>?</h2><p>Combining political science with cutting-edge ML for accurate constituency-level predictions.</p></div>
+        <div class="section-header">
+          <h2>🎯 Key Battleground <span class="gradient-text">Contests</span></h2>
+          <p>High-stakes constituencies decided by narrow victory margins.</p>
+        </div>
+        <div class="card-grid" id="battlegroundGrid">
+          <div class="card" style="text-align: center; color: var(--text-secondary);">Loading battleground data...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Features -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Why <span class="gradient-text">VoteVision AI</span>?</h2>
+          <p>Combining quantitative political science with machine learning for explainable election intelligence.</p>
+        </div>
         <div class="card-grid">
-          <div class="card animate-in"><h3 style="margin-bottom:.75rem">🤖 ML-Powered Predictions</h3><p style="color:var(--text-secondary);font-size:.9rem">Random Forest model trained on historical data: vote share, turnout, swing, incumbency, and demographics.</p></div>
-          <div class="card animate-in"><h3 style="margin-bottom:.75rem">📊 Dual-Election Support</h3><p style="color:var(--text-secondary);font-size:.9rem">Switch seamlessly between the 2024 Lok Sabha and 2026 Vidhan Sabha elections with one click.</p></div>
-          <div class="card animate-in"><h3 style="margin-bottom:.75rem">📐 Swing Simulation</h3><p style="color:var(--text-secondary);font-size:.9rem">Adjust swing parameters dynamically to see how shifting voter sentiment could alter constituency outcomes.</p></div>
+          <div class="card animate-in">
+            <div class="stat-icon blue mb-2">🤖</div>
+            <h3 style="margin-bottom: 0.75rem;">Explainable AI Engine</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+              Transparent feature attribution breaking down historical margin, baseline vote share, swing momentum, and incumbency effects.
+            </p>
+          </div>
+          <div class="card animate-in">
+            <div class="stat-icon green mb-2">📊</div>
+            <h3 style="margin-bottom: 0.75rem;">Dual-Election Coverage</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+              Seamlessly switch between the 2024 Lok Sabha Parliamentary Election and 2026 State Assembly Elections.
+            </p>
+          </div>
+          <div class="card animate-in">
+            <div class="stat-icon orange mb-2">📐</div>
+            <h3 style="margin-bottom: 0.75rem;">Interactive Swing Simulator</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+              Simulate voter sentiment shifts in real time and observe immediate adjustments to candidate win probabilities.
+            </p>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Charts -->
+    <!-- Visual Charts -->
     <section class="section">
       <div class="container">
-        <div class="section-header"><h2>Alliance <span class="gradient-text">Overview</span></h2><p id="chartSubtitle">Seat distribution based on our dataset.</p></div>
+        <div class="section-header">
+          <h2>Alliance & Party <span class="gradient-text">Distribution</span></h2>
+          <p id="chartSubtitle">Projected seat distribution based on calibrated models.</p>
+        </div>
         <div class="two-col">
-          <div class="chart-container"><h3>📊 Alliance-wise Seats</h3><div class="chart-wrapper"><canvas id="allianceChart"></canvas></div></div>
-          <div class="chart-container"><h3>🏛️ Top Parties</h3><div class="chart-wrapper"><canvas id="partyChart"></canvas></div></div>
+          <div class="chart-container">
+            <h3>📊 Alliance Seat Share</h3>
+            <div class="chart-wrapper">
+              <canvas id="allianceChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-container">
+            <h3>🏛️ Top Contesting Parties</h3>
+            <div class="chart-wrapper">
+              <canvas id="partyChart"></canvas>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <footer class="footer"><div class="container"><p>© 2024–2026 VoteVision AI — Built for Indian Democracy | <a href="dashboard.html">Explore Dashboard</a></p></div></footer>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>© 2024–2026 VoteVision AI – Explainable Election Intelligence Platform</p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
+          Probabilistic modeling based on historical election records and demographic data.
+        </p>
+      </div>
+    </footer>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>

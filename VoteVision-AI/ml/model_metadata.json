@@ -1,12 +1,31 @@
 {
   "model_type": "RandomForestClassifier",
   "n_estimators": 200,
+  "max_depth": 12,
   "n_features": 12,
   "n_samples": 78,
-  "cv_accuracy_mean": 0.9875,
-  "cv_accuracy_std": 0.024999999999999998,
-  "cv_f1_mean": 0.9846153846153847,
-  "cv_roc_auc_mean": 0.9968253968253968,
+  "evaluation_method": "GroupKFold (Constituency Holdout)",
+  "cv_accuracy_mean": 0.9867,
+  "cv_accuracy_std": 0.0267,
+  "cv_precision_mean": 1.0,
+  "cv_recall_mean": 0.9714,
+  "cv_f1_mean": 0.9846,
+  "cv_roc_auc_mean": 0.9964,
+  "stratified_cv_accuracy": 0.9617,
+  "stratified_cv_f1": 0.9533,
+  "training_accuracy": 1.0,
+  "training_f1": 1.0,
+  "training_roc_auc": 1.0,
+  "confusion_matrix": [
+    [
+      41,
+      0
+    ],
+    [
+      0,
+      37
+    ]
+  ],
   "feature_columns": [
     "previous_vote_share",
     "turnout",
@@ -22,17 +41,21 @@
     "state_encoded"
   ],
   "feature_importances": {
-    "previous_vote_share": 0.33639088322098354,
-    "turnout": 0.009982545196933644,
-    "swing": 0.0825175389414721,
-    "margin_previous": 0.3700277481564817,
-    "incumbency": 0.08213625419597735,
-    "urban_rural_ratio": 0.007348983865713649,
-    "literacy_rate": 0.010523481513106794,
-    "population_density": 0.006409493157883524,
-    "num_candidates": 0.003064780205719525,
-    "party_encoded": 0.05589157091708453,
-    "alliance_encoded": 0.02057501077815284,
-    "state_encoded": 0.015131709850490829
+    "previous_vote_share": 0.489515279793316,
+    "turnout": 0.023909339301152226,
+    "swing": 0.12830015843666626,
+    "margin_previous": 0.018443774938823647,
+    "incumbency": 0.12354076736500287,
+    "urban_rural_ratio": 0.014159432267984537,
+    "literacy_rate": 0.023824408919838242,
+    "population_density": 0.014007952611096492,
+    "num_candidates": 0.010031086624693882,
+    "party_encoded": 0.08181103009941113,
+    "alliance_encoded": 0.04102446239700782,
+    "state_encoded": 0.03143230724500691
+  },
+  "class_distribution": {
+    "0": 41,
+    "1": 37
   }
 }

@@ -1,49 +1,57 @@
 """
-VoteVision AI - Model Training Script
-Trains a RandomForestClassifier for election outcome prediction.
+VoteVision AI - Model Training & Evaluation Pipeline
+Trains and evaluates production election prediction models (Random Forest),
+performs GroupKFold (constituency-grouped) and StratifiedKFold Cross Validation,
+audits for data leakage, and serializes trained models with full evaluation metadata.
 """
 
 import os
 import sys
+import json
 import pickle
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.model_selection import cross_val_score, StratifiedKFold
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import StratifiedKFold, GroupKFold, cross_validate
 from sklearn.metrics import (
-    accuracy_score, classification_report, confusion_matrix,
-    roc_auc_score, f1_score
+    accuracy_score, precision_score, recall_score, f1_score,
+    roc_auc_score, confusion_matrix
 )
 
 # Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ml.preprocess import ElectionPreprocessor
 
 
 def train_model(data_path, model_save_path, preprocessor_save_path):
     """
-    Train the election prediction model.
+    Train and validate the election prediction model.
 
     Args:
-        data_path: Path to the cleaned_dataset.csv
+        data_path: Path to cleaned dataset CSV
         model_save_path: Path to save the trained model (.pkl)
-        preprocessor_save_path: Path to save the fitted preprocessor (.pkl)
-    """
-    print("=" * 60)
-    print("VoteVision AI - Model Training")
-    print("=" * 60)
+        preprocessor_save_path: Path to save the preprocessor (.pkl)
 
-    # Step 1: Preprocess data
-    print("\n[1/5] Preprocessing data...")
+    Returns:
+        tuple: (trained_model, fitted_preprocessor, model_metadata)
+    """
+    print("=" * 65)
+    print(" VoteVision AI - Model Training & Leak-Free Evaluation Pipeline")
+    print("=" * 65)
+
+    # 1. Preprocessing
+    print("\n[1/5] Loading and Preprocessing Data...")
     preprocessor = ElectionPreprocessor()
     X, y, df = preprocessor.preprocess_for_training(data_path)
 
-    print(f"  Dataset size: {X.shape[0]} samples, {X.shape[1]} features")
-    print(f"  Winner distribution: {dict(zip(*np.unique(y, return_counts=True)))}")
+    unique_classes, counts = np.unique(y, return_counts=True)
+    class_distribution = {int(k): int(v) for k, v in zip(unique_classes, counts)}
+    print(f"  Total samples: {X.shape[0]} | Features: {X.shape[1]}")
+    print(f"  Target distribution (0: Loser, 1: Winner): {class_distribution}")
 
-    # Step 2: Initialize model
-    print("\n[2/5] Initializing RandomForestClassifier...")
-    model = RandomForestClassifier(
+    # 2. Model Initialization
+    print("\n[2/5] Initializing RandomForest Classifier...")
+    rf_model = RandomForestClassifier(
         n_estimators=200,
         max_depth=12,
         min_samples_split=3,
@@ -55,108 +63,113 @@ def train_model(data_path, model_save_path, preprocessor_save_path):
         n_jobs=-1
     )
 
-    # Step 3: Cross-validation
-    print("\n[3/5] Performing cross-validation...")
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    scoring = {
+        'accuracy': 'accuracy',
+        'precision': 'precision',
+        'recall': 'recall',
+        'f1': 'f1',
+        'roc_auc': 'roc_auc'
+    }
 
-    cv_accuracy = cross_val_score(model, X, y, cv=cv, scoring='accuracy')
-    cv_f1 = cross_val_score(model, X, y, cv=cv, scoring='f1')
-    cv_roc = cross_val_score(model, X, y, cv=cv, scoring='roc_auc')
+    # 3A. Rigorous GroupKFold (grouped by Constituency to eliminate constituency data leakage)
+    print("\n[3/5] Running GroupKFold Cross-Validation (Grouped by Constituency)...")
+    group_cv = GroupKFold(n_splits=5)
+    groups = df['constituency'].values
+    group_cv_results = cross_validate(rf_model, X, y, cv=group_cv, groups=groups, scoring=scoring, return_train_score=False)
 
-    print(f"  CV Accuracy: {cv_accuracy.mean():.4f} (+/- {cv_accuracy.std():.4f})")
-    print(f"  CV F1 Score: {cv_f1.mean():.4f} (+/- {cv_f1.std():.4f})")
-    print(f"  CV ROC-AUC:  {cv_roc.mean():.4f} (+/- {cv_roc.std():.4f})")
+    g_acc_mean = float(group_cv_results['test_accuracy'].mean())
+    g_acc_std = float(group_cv_results['test_accuracy'].std())
+    g_prec_mean = float(group_cv_results['test_precision'].mean())
+    g_rec_mean = float(group_cv_results['test_recall'].mean())
+    g_f1_mean = float(group_cv_results['test_f1'].mean())
+    g_roc_mean = float(group_cv_results['test_roc_auc'].mean())
 
-    # Step 4: Train final model on all data
-    print("\n[4/5] Training final model on full dataset...")
-    model.fit(X, y)
+    print(f"  Group-CV Accuracy:  {g_acc_mean * 100:.2f}% (+/- {g_acc_std * 100:.2f}%)")
+    print(f"  Group-CV Precision: {g_prec_mean * 100:.2f}%")
+    print(f"  Group-CV Recall:    {g_rec_mean * 100:.2f}%")
+    print(f"  Group-CV F1-Score:  {g_f1_mean * 100:.2f}%")
+    print(f"  Group-CV ROC-AUC:   {g_roc_mean * 100:.2f}%")
 
-    # Training metrics
-    y_pred = model.predict(X)
-    y_proba = model.predict_proba(X)[:, 1]
+    # 3B. Stratified 5-Fold Cross-Validation
+    strat_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    strat_cv_results = cross_validate(rf_model, X, y, cv=strat_cv, scoring=scoring, return_train_score=False)
+    s_acc_mean = float(strat_cv_results['test_accuracy'].mean())
+    s_f1_mean = float(strat_cv_results['test_f1'].mean())
 
-    print(f"\n  Training Accuracy: {accuracy_score(y, y_pred):.4f}")
-    print(f"  Training F1 Score: {f1_score(y, y_pred):.4f}")
-    print(f"  Training ROC-AUC:  {roc_auc_score(y, y_proba):.4f}")
+    # 4. Train Final Production Model
+    print("\n[4/5] Training Final Model on Entire Dataset...")
+    rf_model.fit(X, y)
 
-    print("\n  Classification Report:")
-    print(classification_report(y, y_pred, target_names=['Loser', 'Winner']))
+    y_pred = rf_model.predict(X)
+    y_proba = rf_model.predict_proba(X)[:, 1]
 
-    # Feature importance
-    print("\n  Feature Importances:")
-    feature_importance = dict(zip(preprocessor.feature_columns, model.feature_importances_))
-    sorted_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
+    cm = confusion_matrix(y, y_pred).tolist()
+    train_acc = float(accuracy_score(y, y_pred))
+    train_f1 = float(f1_score(y, y_pred))
+    train_roc = float(roc_auc_score(y, y_proba))
+
+    print(f"  Full-set Accuracy: {train_acc * 100:.2f}% | F1: {train_f1 * 100:.2f}% | ROC-AUC: {train_roc * 100:.2f}%")
+    print("\n  Confusion Matrix [ [TN, FP], [FN, TP] ]:")
+    print(f"    {cm}")
+
+    # Feature Importances
+    feature_importances = dict(zip(preprocessor.feature_columns, [float(v) for v in rf_model.feature_importances_]))
+    sorted_features = sorted(feature_importances.items(), key=lambda x: x[1], reverse=True)
+    print("\n  Top Feature Importances (Leak-Free):")
     for feat, imp in sorted_features:
-        bar = '█' * int(imp * 50)
-        print(f"    {feat:<25} {imp:.4f} {bar}")
+        bar = '█' * int(imp * 40)
+        print(f"    {feat:<24} {imp:.4f} {bar}")
 
-    # Step 5: Save model and preprocessor
-    print(f"\n[5/5] Saving model and preprocessor...")
+    # 5. Serialization & Metadata
+    print("\n[5/5] Serializing Model, Preprocessor & Metadata...")
+    os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
     with open(model_save_path, 'wb') as f:
-        pickle.dump(model, f)
-    print(f"  Model saved to: {model_save_path}")
+        pickle.dump(rf_model, f)
+    print(f"  ✓ Model saved to: {model_save_path}")
 
     preprocessor.save(preprocessor_save_path)
-    print(f"  Preprocessor saved to: {preprocessor_save_path}")
+    print(f"  ✓ Preprocessor saved to: {preprocessor_save_path}")
 
-    # Save training metadata
     metadata = {
         'model_type': 'RandomForestClassifier',
         'n_estimators': 200,
-        'n_features': X.shape[1],
-        'n_samples': X.shape[0],
-        'cv_accuracy_mean': float(cv_accuracy.mean()),
-        'cv_accuracy_std': float(cv_accuracy.std()),
-        'cv_f1_mean': float(cv_f1.mean()),
-        'cv_roc_auc_mean': float(cv_roc.mean()),
+        'max_depth': 12,
+        'n_features': int(X.shape[1]),
+        'n_samples': int(X.shape[0]),
+        'evaluation_method': 'GroupKFold (Constituency Holdout)',
+        'cv_accuracy_mean': round(g_acc_mean, 4),
+        'cv_accuracy_std': round(g_acc_std, 4),
+        'cv_precision_mean': round(g_prec_mean, 4),
+        'cv_recall_mean': round(g_rec_mean, 4),
+        'cv_f1_mean': round(g_f1_mean, 4),
+        'cv_roc_auc_mean': round(g_roc_mean, 4),
+        'stratified_cv_accuracy': round(s_acc_mean, 4),
+        'stratified_cv_f1': round(s_f1_mean, 4),
+        'training_accuracy': round(train_acc, 4),
+        'training_f1': round(train_f1, 4),
+        'training_roc_auc': round(train_roc, 4),
+        'confusion_matrix': cm,
         'feature_columns': preprocessor.feature_columns,
-        'feature_importances': {k: float(v) for k, v in feature_importance.items()}
+        'feature_importances': feature_importances,
+        'class_distribution': class_distribution
     }
 
-    import json
     metadata_path = os.path.join(os.path.dirname(model_save_path), 'model_metadata.json')
     with open(metadata_path, 'w') as f:
         json.dump(metadata, f, indent=2)
-    print(f"  Metadata saved to: {metadata_path}")
+    print(f"  ✓ Evaluation metadata saved to: {metadata_path}")
 
-    print("\n" + "=" * 60)
-    print("Training complete!")
-    print("=" * 60)
+    print("\n" + "=" * 65)
+    print(" Model Training Completed Successfully!")
+    print("=" * 65)
 
-    return model, preprocessor
+    return rf_model, preprocessor, metadata
 
 
 if __name__ == '__main__':
-    # Paths
-    project_root = os.path.dirname(os.path.dirname(__file__))
-    data_path = os.path.join(project_root, 'data', 'cleaned_dataset.csv')
-    model_save_path = os.path.join(project_root, 'ml', 'saved_model.pkl')
-    preprocessor_save_path = os.path.join(project_root, 'ml', 'preprocessor.pkl')
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    data_csv = os.path.join(project_root, 'data', 'cleaned_dataset.csv')
+    model_path = os.path.join(project_root, 'ml', 'saved_model.pkl')
+    prep_path = os.path.join(project_root, 'ml', 'preprocessor.pkl')
 
-    model, preprocessor = train_model(data_path, model_save_path, preprocessor_save_path)
-
-    # Test prediction
-    print("\n--- Test Prediction ---")
-    test_input = {
-        'previous_vote_share': 55.0,
-        'turnout': 58.0,
-        'swing': 2.5,
-        'margin_previous': 15.0,
-        'incumbency': 1,
-        'urban_rural_ratio': 0.75,
-        'literacy_rate': 80.0,
-        'population_density': 2500,
-        'num_candidates': 6,
-        'party': 'BJP',
-        'alliance': 'NDA',
-        'state': 'Uttar Pradesh'
-    }
-
-    X_test = preprocessor.preprocess_single(test_input)
-    prediction = model.predict(X_test)[0]
-    probability = model.predict_proba(X_test)[0]
-
-    print(f"  Input: {test_input['party']} candidate in {test_input['state']}")
-    print(f"  Prediction: {'Winner' if prediction == 1 else 'Loser'}")
-    print(f"  Confidence: {max(probability) * 100:.1f}%")
-    print(f"  Probabilities: Lose={probability[0]:.3f}, Win={probability[1]:.3f}")
+    train_model(data_csv, model_path, prep_path)

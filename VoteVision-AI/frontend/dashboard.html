@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <meta name="description" content="VoteVision AI Dashboard – Election analytics for 2024 General & 2026 Assembly elections">
-  <title>Dashboard – VoteVision AI</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VoteVision AI Dashboard – Election analytics and model performance for 2024 General & 2026 Assembly elections.">
+  <title>Analytics Dashboard – VoteVision AI</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="spinner-overlay" id="spinner"><div class="spinner"></div></div>
+  <div class="spinner-overlay" id="spinner" aria-hidden="true"><div class="spinner"></div></div>
+
+  <!-- Navigation -->
   <nav class="navbar">
-    <a href="index.html" class="nav-brand"><div class="logo-icon">🗳️</div><span>VoteVision AI</span></a>
-    <button class="nav-toggle" aria-label="Menu">☰</button>
+    <a href="index.html" class="nav-brand">
+      <div class="logo-icon">🗳️</div>
+      <span>VoteVision AI</span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle Navigation">☰</button>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="dashboard.html">Dashboard</a></li>
@@ -18,56 +24,135 @@
       <li><a href="candidates.html">Candidates</a></li>
     </ul>
   </nav>
+
   <div class="page-wrapper">
-    <section class="section" style="padding-top:2rem">
+    <section class="section" style="padding-top: 2rem;">
       <div class="container">
-        <!-- Switcher + header -->
+        <!-- Switcher & Header -->
         <div id="dashSwitcher"></div>
-        <div class="section-header" style="text-align:left;margin-bottom:2rem">
-          <h2 id="dashTitle">📊 Election <span class="gradient-text">Dashboard</span></h2>
-          <p style="margin:0" id="dashSubtitle">Real-time analytics from the 2024 General Election dataset.</p>
+        <div class="section-header" style="text-align: left; margin-bottom: 2rem;">
+          <h2 id="dashTitle">📊 Election <span class="gradient-text">Analytics Dashboard</span></h2>
+          <p style="margin: 0;" id="dashSubtitle">Real-time political metrics and seat projections.</p>
         </div>
 
-        <!-- Stats -->
+        <!-- Summary Metric Cards -->
         <div class="stat-grid" id="dashStats">
-          <div class="stat-card animate-in"><div class="stat-icon blue">📍</div><div class="stat-info"><h3 id="dConstituencies">--</h3><p>Constituencies</p></div></div>
-          <div class="stat-card animate-in"><div class="stat-icon green">🏛️</div><div class="stat-info"><h3 id="dStates">--</h3><p>States</p></div></div>
-          <div class="stat-card animate-in"><div class="stat-icon purple">👥</div><div class="stat-info"><h3 id="dCandidates">--</h3><p>Candidates</p></div></div>
-          <div class="stat-card animate-in"><div class="stat-icon orange">📈</div><div class="stat-info"><h3 id="dTurnout">--</h3><p>Avg Turnout</p></div></div>
+          <div class="stat-card animate-in">
+            <div class="stat-icon blue">📍</div>
+            <div class="stat-info">
+              <h3 id="dConstituencies">--</h3>
+              <p>Constituencies Tracked</p>
+            </div>
+          </div>
+          <div class="stat-card animate-in">
+            <div class="stat-icon green">🏛️</div>
+            <div class="stat-info">
+              <h3 id="dStates">--</h3>
+              <p>States Covered</p>
+            </div>
+          </div>
+          <div class="stat-card animate-in">
+            <div class="stat-icon purple">👥</div>
+            <div class="stat-info">
+              <h3 id="dCandidates">--</h3>
+              <p>Candidates Recorded</p>
+            </div>
+          </div>
+          <div class="stat-card animate-in">
+            <div class="stat-icon orange">📈</div>
+            <div class="stat-info">
+              <h3 id="dTurnout">--</h3>
+              <p>Average Turnout</p>
+            </div>
+          </div>
         </div>
 
-        <!-- Charts -->
+        <!-- Visual Charts -->
         <div class="two-col mt-4">
-          <div class="chart-container animate-in"><h3 id="allianceChartTitle">🏆 Alliance Seat Share</h3><div class="chart-wrapper"><canvas id="dashAlliance"></canvas></div></div>
-          <div class="chart-container animate-in"><h3>🗳️ Party-wise Winners</h3><div class="chart-wrapper"><canvas id="dashParty"></canvas></div></div>
+          <div class="chart-container animate-in">
+            <h3 id="allianceChartTitle">🏆 Alliance Seat Share</h3>
+            <div class="chart-wrapper">
+              <canvas id="dashAlliance"></canvas>
+            </div>
+          </div>
+          <div class="chart-container animate-in">
+            <h3>🗳️ Party-wise Seats</h3>
+            <div class="chart-wrapper">
+              <canvas id="dashParty"></canvas>
+            </div>
+          </div>
         </div>
 
-        <!-- Assembly info cards (shown only for assembly) -->
+        <!-- Assembly Schedule Panel -->
         <div class="chart-container mt-4 hidden" id="assemblyInfoPanel">
           <h3>🗓️ State-wise Election Schedule</h3>
           <div class="election-info-grid" id="assemblyInfoGrid"></div>
         </div>
 
-        <!-- State table -->
+        <!-- State-by-State Breakdown Table -->
         <div class="chart-container mt-4 animate-in">
-          <h3>🗺️ State-wise Breakdown</h3>
-          <div style="overflow-x:auto">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+            <h3>🗺️ State-wise Breakdown</h3>
+            <input type="text" id="stateTableSearch" placeholder="Filter states..." style="max-width: 250px; padding: 8px 12px; font-size: 0.85rem;">
+          </div>
+          <div style="overflow-x: auto;">
             <table class="data-table" id="stateTable">
-              <thead><tr><th>State</th><th>Constituencies</th><th>Avg Turnout</th><th>Leading Party</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>State</th>
+                  <th>Constituencies</th>
+                  <th>Avg Turnout</th>
+                  <th>Leading Party</th>
+                </tr>
+              </thead>
               <tbody id="stateTableBody"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- Model info -->
+        <!-- Closest Contests / Battleground Tracker Table -->
         <div class="chart-container mt-4 animate-in">
-          <h3>🤖 Model Performance</h3>
-          <div id="modelInfo" style="color:var(--text-secondary)">Loading model info…</div>
+          <h3>🎯 High-Stakes Battleground Constituencies</h3>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+            Constituencies determined by the narrowest previous victory margins.
+          </p>
+          <div style="overflow-x: auto;">
+            <table class="data-table" id="battlegroundTable">
+              <thead>
+                <tr>
+                  <th>Constituency</th>
+                  <th>State</th>
+                  <th>Winning Candidate</th>
+                  <th>Party</th>
+                  <th>Margin of Victory</th>
+                </tr>
+              </thead>
+              <tbody id="battlegroundTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Machine Learning Model Performance Scorecard -->
+        <div class="chart-container mt-4 animate-in">
+          <h3>🤖 Machine Learning Model Performance</h3>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+            Stratified 5-Fold Cross-Validation metrics and evaluation parameters.
+          </p>
+          <div id="modelInfo">
+            <div style="color: var(--text-muted);">Loading model performance data...</div>
+          </div>
         </div>
       </div>
     </section>
-    <footer class="footer"><div class="container"><p>© 2024–2026 VoteVision AI</p></div></footer>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>© 2024–2026 VoteVision AI – Explainable Election Intelligence Platform</p>
+      </div>
+    </footer>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="js/api.js"></script>
   <script src="js/dashboard.js"></script>

@@ -5,6 +5,7 @@ Common utility functions used across the backend.
 
 import json
 import os
+import socket
 import pandas as pd
 
 
@@ -23,6 +24,22 @@ def load_csv_file(filepath):
         raise FileNotFoundError(f"CSV file not found: {filepath}")
 
     return pd.read_csv(filepath)
+
+
+def find_available_port(host='0.0.0.0', start_port=5001, max_tries=50):
+    """
+    Check if a port is available, or find the next available port.
+    Tests binding directly on the target host to avoid collisions.
+    """
+    target_host = host if host else '0.0.0.0'
+    for p in range(start_port, start_port + max_tries):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind((target_host, p))
+                return p
+            except OSError:
+                continue
+    return start_port
 
 
 def validate_prediction_input(data):

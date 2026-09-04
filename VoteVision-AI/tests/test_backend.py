@@ -113,6 +113,37 @@ class TestBackendAPI(unittest.TestCase):
         data = res.get_json()
         self.assertFalse(data.get('success'))
 
+    def test_compare_candidates(self):
+        """Test /api/compare endpoint comparing two valid candidates."""
+        res = self.client.get('/api/compare?c1=1&c2=2')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data.get('success'))
+        self.assertIn('comparison', data)
+        comp = data['comparison']
+        self.assertIn('asset_comparison', comp)
+        self.assertIn('experience_comparison', comp)
+        self.assertIn('legal_records', comp)
+
+    def test_compare_candidates_missing_params(self):
+        """Test /api/compare with missing candidate parameters."""
+        res = self.client.get('/api/compare')
+        self.assertEqual(res.status_code, 400)
+        data = res.get_json()
+        self.assertFalse(data.get('success'))
+
+    def test_insights_endpoint(self):
+        """Test /api/insights automated intelligence endpoint."""
+        res = self.client.get('/api/insights')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data.get('success'))
+        self.assertIn('insights', data)
+        ins = data['insights']
+        self.assertIn('highest_turnout_constituencies', ins)
+        self.assertIn('tightest_battlegrounds', ins)
+        self.assertIn('wealthiest_candidates', ins)
+
     def test_get_parties(self):
         """Test /api/parties endpoint."""
         res = self.client.get('/api/parties')

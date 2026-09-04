@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="VoteVision AI Dashboard – Election analytics and model performance for 2024 General & 2026 Assembly elections.">
-  <title>Analytics Dashboard – VoteVision AI</title>
+  <meta name="description" content="VoteVision AI Dashboard – Election analytics, scenario simulator, and model performance for 2024 General & 2026 Assembly elections.">
+  <title>Analytics Dashboard & Scenario Studio – VoteVision AI</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -22,6 +22,7 @@
       <li><a href="dashboard.html">Dashboard</a></li>
       <li><a href="constituency.html">Predict</a></li>
       <li><a href="candidates.html">Candidates</a></li>
+      <li><a href="compare.html">Compare</a></li>
     </ul>
   </nav>
 
@@ -83,6 +84,51 @@
           </div>
         </div>
 
+        <!-- Scenario Simulator Studio -->
+        <div class="chart-container mt-4 animate-in" style="background: var(--gradient-card);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <h3 style="margin-bottom: 0.25rem;">📐 Statewide What-If Scenario Simulator</h3>
+              <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">Simulate state-level or nationwide voter sentiment shifts and project seat gains/losses.</p>
+            </div>
+            <span class="winner-badge win">Live Simulation Engine</span>
+          </div>
+          <div class="prediction-controls" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+            <div class="form-group" style="margin: 0;">
+              <label for="scenarioStateSelect">Filter by State (Optional)</label>
+              <select id="scenarioStateSelect">
+                <option value="">All States (Nationwide)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="scenarioSwingSlider">Voter Swing Shift: <strong id="scenarioSwingLabel" style="color: var(--accent-cyan);">0.0%</strong></label>
+              <input type="range" id="scenarioSwingSlider" min="-10" max="10" step="0.5" value="0">
+            </div>
+          </div>
+          <div style="margin-top: 1.25rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" id="runScenarioBtn">🚀 Run Scenario Simulation</button>
+            <button class="btn btn-secondary btn-sm" id="resetScenarioBtn">Reset</button>
+          </div>
+
+          <!-- Scenario Simulation Results -->
+          <div id="scenarioResults" class="hidden mt-3" style="padding-top: 1rem; border-top: 1px solid var(--border-glass);">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Projected Alliance & Party Seats:</h4>
+            <div id="scenarioSeatGrid" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;"></div>
+            <p id="scenarioSummaryText" style="font-size: 0.85rem; color: var(--text-secondary);"></p>
+          </div>
+        </div>
+
+        <!-- Automated AI Insights Panel -->
+        <div class="chart-container mt-4 animate-in">
+          <h3>💡 AI Election Intelligence & Outliers</h3>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+            Automated trend detection covering wealth, youth participation, and turnout records.
+          </p>
+          <div id="insightsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+            <div style="color: var(--text-muted);">Loading intelligence insights...</div>
+          </div>
+        </div>
+
         <!-- Assembly Schedule Panel -->
         <div class="chart-container mt-4 hidden" id="assemblyInfoPanel">
           <h3>🗓️ State-wise Election Schedule</h3>
@@ -114,7 +160,7 @@
         <div class="chart-container mt-4 animate-in">
           <h3>🎯 High-Stakes Battleground Constituencies</h3>
           <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
-            Constituencies determined by the narrowest previous victory margins.
+            Constituencies determined by the narrowest victory margins.
           </p>
           <div style="overflow-x: auto;">
             <table class="data-table" id="battlegroundTable">
@@ -136,7 +182,7 @@
         <div class="chart-container mt-4 animate-in">
           <h3>🤖 Machine Learning Model Performance</h3>
           <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
-            Stratified 5-Fold Cross-Validation metrics and evaluation parameters.
+            Stratified & Group-CV metrics with feature importance weights.
           </p>
           <div id="modelInfo">
             <div style="color: var(--text-muted);">Loading model performance data...</div>

@@ -22,6 +22,7 @@
       <li><a href="dashboard.html">Dashboard</a></li>
       <li><a href="constituency.html">Predict</a></li>
       <li><a href="candidates.html">Candidates</a></li>
+      <li><a href="compare.html">Compare</a></li>
     </ul>
   </nav>
 
@@ -31,51 +32,51 @@
         <!-- Switcher & Header -->
         <div id="candSwitcher"></div>
         <div class="section-header" style="text-align: left;">
-          <h2>👥 Candidate <span class="gradient-text">Directory & Profiles</span></h2>
-          <p style="margin: 0;" id="candSubtitle">Browse and filter key candidates, assets, criminal cases, and electoral history.</p>
+          <h2 id="candTitle">👥 Candidate <span class="gradient-text">Profiles & Affidavits</span></h2>
+          <p style="margin: 0;" id="candSubtitle">Explore declared assets, criminal record affidavits, and electoral track records.</p>
         </div>
 
-        <!-- Filter Controls -->
-        <div class="card mb-3">
+        <!-- Filter Panel -->
+        <div class="card mb-4">
           <div class="prediction-controls" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
             <div class="form-group" style="margin: 0;">
-              <label for="filterState">State</label>
-              <select id="filterState">
+              <label for="candStateFilter">Filter State</label>
+              <select id="candStateFilter">
                 <option value="">All States</option>
               </select>
             </div>
             <div class="form-group" style="margin: 0;">
-              <label for="filterParty">Party</label>
-              <select id="filterParty">
+              <label for="candPartyFilter">Filter Party</label>
+              <select id="candPartyFilter">
                 <option value="">All Parties</option>
               </select>
             </div>
             <div class="form-group" style="margin: 0;">
-              <label for="filterAlliance">Alliance</label>
-              <select id="filterAlliance">
+              <label for="candAllianceFilter">Filter Alliance</label>
+              <select id="candAllianceFilter">
                 <option value="">All Alliances</option>
               </select>
             </div>
             <div class="form-group" style="margin: 0;">
-              <label for="filterSearch">Search Name / Constituency</label>
-              <input type="text" id="filterSearch" placeholder="Type to search..." style="background-image: none;">
+              <label for="candSearch">Search Name / Seat</label>
+              <input type="text" id="candSearch" placeholder="Search candidate...">
             </div>
           </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-          <p style="color: var(--text-secondary); margin: 0;" id="candidateCount">Loading candidate records...</p>
-        </div>
-
         <!-- Candidate Cards Grid -->
-        <div class="card-grid" id="candidateGrid"></div>
+        <div class="card-grid" id="candidatesGrid">
+          <div style="color: var(--text-muted); text-align: center; grid-column: 1 / -1; padding: 2rem;">
+            Loading candidate directory...
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- Candidate Detail Modal -->
     <div id="candidateModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
-      <div class="modal-content card">
-        <button class="modal-close" id="modalCloseBtn" aria-label="Close modal">×</button>
+      <div class="card modal-content">
+        <button class="modal-close" id="closeModalBtn" aria-label="Close Modal">&times;</button>
         <div id="modalBody"></div>
       </div>
     </div>

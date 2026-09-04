@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VoteVision AI – Head-to-Head Candidate Comparison and Electoral Track Record Analysis.">
+  <title>Candidate Head-to-Head Comparison – VoteVision AI</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="spinner-overlay" id="spinner" aria-hidden="true"><div class="spinner"></div></div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="logo-icon">🗳️</div>
+      <span>VoteVision AI</span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle Navigation">☰</button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="constituency.html">Predict</a></li>
+      <li><a href="candidates.html">Candidates</a></li>
+      <li><a href="compare.html">Compare</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-wrapper">
+    <section class="section" style="padding-top: 2rem;">
+      <div class="container">
+        <!-- Switcher & Header -->
+        <div id="compSwitcher"></div>
+        <div class="section-header" style="text-align: left;">
+          <h2>⚔️ Head-to-Head <span class="gradient-text">Candidate Comparison</span></h2>
+          <p style="margin: 0;" id="compSubtitle">Select any two political candidates to compare declared assets, legal track records, and electoral experience.</p>
+        </div>
+
+        <!-- Selection Panel -->
+        <div class="card mb-4">
+          <div class="two-col">
+            <div class="form-group" style="margin: 0;">
+              <label for="cand1Select">Candidate 1</label>
+              <select id="cand1Select">
+                <option value="">Select First Candidate</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="cand2Select">Candidate 2</label>
+              <select id="cand2Select">
+                <option value="">Select Second Candidate</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top: 1.25rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="compareBtn" disabled>⚔️ Compare Candidates</button>
+            <button class="btn btn-secondary btn-sm" id="swapBtn">⇄ Swap</button>
+          </div>
+        </div>
+
+        <!-- Comparison Result Container -->
+        <div id="comparisonResults" class="hidden">
+          <!-- Profile Cards Side-by-Side -->
+          <div class="two-col mb-4" id="profilesContainer"></div>
+
+          <!-- Comparison Metrics Table / Cards -->
+          <div class="card mb-4">
+            <h3 style="margin-bottom: 1.25rem;">📊 Key Metric Comparisons</h3>
+            <div id="metricsComparisonGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;"></div>
+          </div>
+
+          <!-- Head-to-Head Analysis Verdict -->
+          <div class="card" style="background: var(--gradient-card);">
+            <h3 style="margin-bottom: 0.75rem;">🤖 Comparative Intelligence Verdict</h3>
+            <p id="comparisonVerdict" style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>© 2024–2026 VoteVision AI – Explainable Election Intelligence Platform</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/compare.js"></script>
+</body>
+</html>

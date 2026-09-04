@@ -77,7 +77,7 @@ def get_constituencies():
             for state in states
         }
 
-        # Calculate battleground / closest contested seats (lowest previous victory margin)
+        # Calculate battleground / closest contested seats
         battleground_seats = []
         for c in dataset['constituency'].unique():
             c_data = dataset[dataset['constituency'] == c]
@@ -305,6 +305,95 @@ def get_candidate_by_id(candidate_id):
         }), 500
 
 
+@data_bp.route('/compare', methods=['GET'])
+def compare_candidates():
+    """
+    Head-to-head comparison between two candidates.
+
+    Query params:
+        c1: First candidate ID
+        c2: Second candidate ID
+        election_type (optional): 'general' | 'assembly'
+    """
+    try:
+        election_type = get_election_type()
+        _, candidate_data = resolve_datasets(election_type)
+
+        if candidate_data is None:
+            return jsonify({
+                'success': False,
+                'error': {
+                    'code': 'DATA_NOT_LOADED',
+                    'message': 'Candidate profiles data not loaded'
+                }
+            }), 503
+
+        c1_id = request.args.get('c1', type=int)
+        c2_id = request.args.get('c2', type=int)
+
+        if not c1_id or not c2_id:
+            return jsonify({
+                'success': False,
+                'error': {
+                    'code': 'MISSING_PARAMS',
+                    'message': 'Both c1 and c2 query parameters are required as integer IDs'
+                }
+            }), 400
+
+        candidates = candidate_data.get('candidates', [])
+        cand1 = next((c for c in candidates if c.get('id') == c1_id), None)
+        cand2 = next((c for c in candidates if c.get('id') == c2_id), None)
+
+        if not cand1:
+            return jsonify({'success': False, 'error': {'code': 'CANDIDATE_NOT_FOUND', 'message': f'Candidate {c1_id} not found'}}), 404
+        if not cand2:
+            return jsonify({'success': False, 'error': {'code': 'CANDIDATE_NOT_FOUND', 'message': f'Candidate {c2_id} not found'}}), 404
+
+        # Compare metrics
+        asset1 = float(cand1.get('assets_crore', 0))
+        asset2 = float(cand2.get('assets_crore', 0))
+        crim1 = int(cand1.get('criminal_cases', 0))
+        crim2 = int(cand2.get('criminal_cases', 0))
+        wins1 = int(cand1.get('previous_wins', 0))
+        wins2 = int(cand2.get('previous_wins', 0))
+
+        comparison = {
+            'candidate1': cand1,
+            'candidate2': cand2,
+            'asset_comparison': {
+                'c1_assets': asset1,
+                'c2_assets': asset2,
+                'wealthier': cand1['name'] if asset1 > asset2 else (cand2['name'] if asset2 > asset1 else 'Equal'),
+                'delta_crore': round(abs(asset1 - asset2), 2)
+            },
+            'experience_comparison': {
+                'c1_wins': wins1,
+                'c2_wins': wins2,
+                'more_experienced': cand1['name'] if wins1 > wins2 else (cand2['name'] if wins2 > wins1 else 'Equal')
+            },
+            'legal_records': {
+                'c1_criminal_cases': crim1,
+                'c2_criminal_cases': crim2,
+                'cleaner_record': cand1['name'] if crim1 < crim2 else (cand2['name'] if crim2 < crim1 else 'Equal')
+            }
+        }
+
+        return jsonify({
+            'success': True,
+            'election_type': election_type,
+            'comparison': comparison
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': {
+                'code': 'SERVER_ERROR',
+                'message': str(e)
+            }
+        }), 500
+
+
 @data_bp.route('/parties', methods=['GET'])
 def get_parties():
     """
@@ -363,6 +452,43 @@ def get_parties():
         }), 500
 
 
+@data_bp.route('/insights', methods=['GET'])
+def get_insights():
+    """
+    Generate automated data-driven insights and records analysis.
+    """
+    try:
+        election_type = get_election_type()
+        dataset, candidate_data = resolve_datasets(election_type)
+
+        if dataset is None:
+            return jsonify({'success': False, 'error': {'code': 'DATASET_NOT_LOADED', 'message': 'Dataset not loaded'}}), 503
+
+        # 1. Turnout leaders
+        turnout_leaders = dataset.drop_duplicates(subset=['constituency']).sort_values(by='turnout', ascending=False)[['constituency', 'state', 'turnout']].head(5).to_dict('records')
+
+        # 2. Battlegrounds (lowest margin)
+        battlegrounds = dataset[dataset['winner'] == 1].sort_values(by='margin_previous')[['constituency', 'state', 'candidate_name', 'party', 'margin_previous']].head(5).to_dict('records')
+
+        # 3. Candidate wealth & youth from candidate_data
+        candidates = candidate_data.get('candidates', []) if candidate_data else []
+        wealth_leaders = sorted(candidates, key=lambda x: x.get('assets_crore', 0), reverse=True)[:5]
+        young_candidates = sorted([c for c in candidates if c.get('age', 100) < 55], key=lambda x: x.get('age', 100))[:5]
+
+        return jsonify({
+            'success': True,
+            'election_type': election_type,
+            'insights': {
+                'highest_turnout_constituencies': turnout_leaders,
+                'tightest_battlegrounds': battlegrounds,
+                'wealthiest_candidates': wealth_leaders,
+                'young_prominent_candidates': young_candidates
+            }
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': {'code': 'SERVER_ERROR', 'message': str(e)}}), 500
+
+
 @data_bp.route('/stats', methods=['GET'])
 def get_stats():
     """
@@ -400,7 +526,7 @@ def get_stats():
                 'party_wins': state_winners['party'].value_counts().to_dict()
             }
 
-        # Identify key battleground seats (contests with narrow margin)
+        # Identify key battleground seats
         battlegrounds = []
         for _, row in winners.iterrows():
             margin = float(row.get('margin_previous', 0.0))

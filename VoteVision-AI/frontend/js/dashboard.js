@@ -1,4 +1,4 @@
-/* dashboard.js – VoteVision AI Analytics Dashboard */
+/* dashboard.js – VoteVision AI Analytics Dashboard & Scenario Studio */
 
 let dAllianceChart = null;
 let dPartyChart = null;
@@ -8,16 +8,70 @@ document.addEventListener('DOMContentLoaded', () => {
   createElectionSwitcher('dashSwitcher');
   applyMode(ElectionType.get());
   loadDashboard();
+  loadInsights();
 
   document.addEventListener('electionTypeChanged', (e) => {
     applyMode(e.detail.type);
     loadDashboard();
+    loadInsights();
+    const scRes = document.getElementById('scenarioResults');
+    if (scRes) scRes.classList.add('hidden');
   });
 
   const searchInput = document.getElementById('stateTableSearch');
   if (searchInput) {
     searchInput.addEventListener('input', () => {
       renderStateTable(rawStateStats, searchInput.value.toLowerCase().trim());
+    });
+  }
+
+  // Scenario Simulator controls
+  const scSlider = document.getElementById('scenarioSwingSlider');
+  const scLabel = document.getElementById('scenarioSwingLabel');
+  const runScBtn = document.getElementById('runScenarioBtn');
+  const resetScBtn = document.getElementById('resetScenarioBtn');
+
+  if (scSlider && scLabel) {
+    scSlider.addEventListener('input', () => {
+      const v = parseFloat(scSlider.value);
+      scLabel.textContent = `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
+    });
+  }
+
+  if (resetScBtn && scSlider && scLabel) {
+    resetScBtn.addEventListener('click', () => {
+      scSlider.value = 0;
+      scLabel.textContent = '0.0%';
+      const scState = document.getElementById('scenarioStateSelect');
+      if (scState) scState.value = '';
+      const scRes = document.getElementById('scenarioResults');
+      if (scRes) scRes.classList.add('hidden');
+    });
+  }
+
+  if (runScBtn) {
+    runScBtn.addEventListener('click', async () => {
+      const stateVal = document.getElementById('scenarioStateSelect')?.value || '';
+      const swingVal = parseFloat(scSlider?.value || 0);
+
+      showSpinner();
+      try {
+        const data = await api.simulateScenarios({
+          state: stateVal || undefined,
+          swing_adjustment: swingVal
+        });
+
+        if (data.success) {
+          renderScenarioResults(data);
+          const scRes = document.getElementById('scenarioResults');
+          if (scRes) scRes.classList.remove('hidden');
+        }
+      } catch (err) {
+        console.error('Scenario simulation failed:', err);
+        showToast(`Simulation failed: ${err.message}`, 'error');
+      } finally {
+        hideSpinner();
+      }
     });
   }
 });
@@ -55,6 +109,7 @@ async function loadDashboard() {
 
     if (statsRes.status === 'fulfilled' && statsRes.value.success) {
       renderDashboard(statsRes.value.stats);
+      populateScenarioStates(statsRes.value.stats.state_stats);
     } else {
       showToast('Could not load stats from backend', 'error');
     }
@@ -73,13 +128,115 @@ async function loadDashboard() {
   }
 }
 
+async function loadInsights() {
+  const container = document.getElementById('insightsGrid');
+  if (!container) return;
+
+  try {
+    const data = await api.request(`/insights?election_type=${ElectionType.get()}`);
+    if (data.success && data.insights) {
+      renderInsights(data.insights);
+    }
+  } catch (err) {
+    console.error('Failed to load insights:', err);
+    if (container) container.innerHTML = '<div style="color:var(--text-muted);">Insights unavailable.</div>';
+  }
+}
+
+function populateScenarioStates(stateStats) {
+  const sel = document.getElementById('scenarioStateSelect');
+  if (!sel || !stateStats) return;
+  sel.innerHTML = '<option value="">All States (Nationwide)</option>';
+  Object.keys(stateStats).sort().forEach(state => {
+    const opt = document.createElement('option');
+    opt.value = state;
+    opt.textContent = state;
+    sel.appendChild(opt);
+  });
+}
+
+function renderScenarioResults(data) {
+  const grid = document.getElementById('scenarioSeatGrid');
+  const summary = document.getElementById('scenarioSummaryText');
+  if (!grid) return;
+
+  const allianceSeats = data.projected_seats_by_alliance || {};
+  const partySeats = data.projected_seats_by_party || {};
+
+  const pills = Object.entries(allianceSeats).map(([alliance, seats]) => {
+    return `
+      <div style="background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 50px; padding: 6px 14px; font-size: 0.85rem; font-weight: 600;">
+        <span style="color: var(--accent-cyan);">${alliance}:</span> ${seats} seats
+      </div>
+    `;
+  }).join('');
+
+  grid.innerHTML = pills;
+
+  if (summary) {
+    summary.innerHTML = `
+      Simulated <strong>${data.total_simulated}</strong> constituencies under a <strong>${data.swing_adjustment >= 0 ? '+' : ''}${data.swing_adjustment}%</strong> swing shift.
+      Top party: <strong>${Object.entries(partySeats)[0]?.[0] || '—'}</strong> with ${Object.entries(partySeats)[0]?.[1] || 0} projected seats.
+    `;
+  }
+}
+
+function renderInsights(ins) {
+  const container = document.getElementById('insightsGrid');
+  if (!container) return;
+
+  const turnouts = ins.highest_turnout_constituencies || [];
+  const battles = ins.tightest_battlegrounds || [];
+  const wealth = ins.wealthiest_candidates || [];
+
+  container.innerHTML = `
+    <!-- Turnout Leaders -->
+    <div class="stat-card" style="flex-direction: column;">
+      <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">⚡ HIGHEST VOTER PARTICIPATION</span>
+      <div style="margin-top: 0.5rem; width: 100%;">
+        ${turnouts.slice(0, 3).map(t => `
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+            <span>${t.constituency} (${t.state})</span>
+            <strong style="color: var(--accent-green);">${t.turnout}%</strong>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Tightest Contests -->
+    <div class="stat-card" style="flex-direction: column;">
+      <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">🎯 NARROWEST VICTORY MARGINS</span>
+      <div style="margin-top: 0.5rem; width: 100%;">
+        ${battles.slice(0, 3).map(b => `
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+            <span>${b.constituency} (${b.party})</span>
+            <strong style="color: var(--accent-orange);">${b.margin_previous}% Lead</strong>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Wealthiest Candidates -->
+    <div class="stat-card" style="flex-direction: column;">
+      <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">💰 HIGHEST DECLARED ASSETS</span>
+      <div style="margin-top: 0.5rem; width: 100%;">
+        ${wealth.slice(0, 3).map(w => `
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+            <span>${w.name} (${w.party})</span>
+            <strong style="color: var(--accent-cyan);">₹${w.assets_crore} Cr</strong>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
 function renderDashboard(s) {
   document.getElementById('dConstituencies').textContent = s.total_constituencies || 0;
   document.getElementById('dStates').textContent = s.total_states || 0;
   document.getElementById('dCandidates').textContent = s.total_candidates || 0;
   document.getElementById('dTurnout').textContent = `${s.avg_turnout || 0}%`;
 
-  // Destroy previous chart instances
   if (dAllianceChart) {
     dAllianceChart.destroy();
     dAllianceChart = null;
@@ -89,7 +246,6 @@ function renderDashboard(s) {
     dPartyChart = null;
   }
 
-  // Render Alliance Doughnut Chart
   const aLabels = Object.keys(s.alliance_seats || {});
   const aValues = Object.values(s.alliance_seats || {});
   const allianceColors = {
@@ -131,7 +287,6 @@ function renderDashboard(s) {
     });
   }
 
-  // Render Party Bar Chart
   const pLabels = Object.keys(s.party_seats || {});
   const pValues = Object.values(s.party_seats || {});
   const pCtx = document.getElementById('dashParty');
@@ -168,14 +323,10 @@ function renderDashboard(s) {
     });
   }
 
-  // Render State Breakdown Table
   rawStateStats = s.state_stats || {};
   renderStateTable(rawStateStats);
-
-  // Render Battleground Table
   renderBattlegroundTable(s.battlegrounds || []);
 
-  // Assembly Schedule
   if (ElectionType.isAssembly() && s.election_info) {
     renderAssemblyPanel(s.election_info);
   }
@@ -270,13 +421,12 @@ function renderModelInfo(info) {
   const el = document.getElementById('modelInfo');
   if (!el || !info) return;
 
-  const acc = info.cv_accuracy ? (info.cv_accuracy * 100).toFixed(1) : '98.8';
+  const acc = info.cv_accuracy ? (info.cv_accuracy * 100).toFixed(1) : '98.7';
   const prec = info.cv_precision ? (info.cv_precision * 100).toFixed(1) : '100.0';
   const rec = info.cv_recall ? (info.cv_recall * 100).toFixed(1) : '97.1';
   const f1 = info.cv_f1 ? (info.cv_f1 * 100).toFixed(1) : '98.5';
-  const roc = info.cv_roc_auc ? (info.cv_roc_auc * 100).toFixed(1) : '99.7';
+  const roc = info.cv_roc_auc ? (info.cv_roc_auc * 100).toFixed(1) : '99.6';
 
-  // Feature importances top list
   const importances = info.feature_importances || {};
   const sortedFeats = Object.entries(importances).sort((a, b) => b[1] - a[1]);
 
@@ -290,7 +440,7 @@ function renderModelInfo(info) {
           <span style="color: var(--accent-cyan); font-weight: 600;">${pct}%</span>
         </div>
         <div class="confidence-bar" style="height: 6px;">
-          <div class="confidence-fill" style="width: ${Math.min(100, val * 250)}%; background: var(--gradient-accent);"></div>
+          <div class="confidence-fill" style="width: ${Math.min(100, val * 200)}%; background: var(--gradient-accent);"></div>
         </div>
       </div>
     `;
@@ -302,7 +452,7 @@ function renderModelInfo(info) {
         <div class="stat-icon green">✓</div>
         <div class="stat-info">
           <h3>${acc}%</h3>
-          <p>5-Fold CV Accuracy</p>
+          <p>Group-CV Accuracy</p>
         </div>
       </div>
       <div class="stat-card">

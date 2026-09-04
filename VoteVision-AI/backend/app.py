@@ -127,6 +127,11 @@ def create_app(config_name=None):
     def serve_candidates():
         return send_from_directory(app.static_folder, 'candidates.html')
 
+    @app.route('/compare')
+    @app.route('/compare.html')
+    def serve_compare():
+        return send_from_directory(app.static_folder, 'compare.html')
+
     # Health Check API
     @app.route('/api/health')
     def health_check():

@@ -1,7 +1,8 @@
-/* constituency.js – VoteVision AI Prediction & Explainable AI */
+/* constituency.js – VoteVision AI Prediction, Explainable AI & Report Export */
 
 let stateConstituencies = {};
-let predChart = null;
+let probChart = null;
+let lastPredictionData = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   createElectionSwitcher('constSwitcher');
@@ -12,9 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     applyMode(e.detail.type);
     loadConstituencies();
     const resSec = document.getElementById('resultsSection');
-    const cInfo = document.getElementById('constituencyInfo');
+    const demoCard = document.getElementById('demographicsCard');
     if (resSec) resSec.classList.add('hidden');
-    if (cInfo) cInfo.classList.add('hidden');
+    if (demoCard) demoCard.classList.add('hidden');
   });
 
   const stateSelect = document.getElementById('stateSelect');
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const swingLabel = document.getElementById('swingLabel');
   const predictBtn = document.getElementById('predictBtn');
   const resetSwingBtn = document.getElementById('resetSwingBtn');
+  const exportBtn = document.getElementById('exportReportBtn');
 
   stateSelect.addEventListener('change', () => {
     const state = stateSelect.value;
@@ -39,56 +41,24 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    document.getElementById('constituencyInfo').classList.add('hidden');
-    document.getElementById('resultsSection').classList.add('hidden');
+    document.getElementById('demographicsCard')?.classList.add('hidden');
+    document.getElementById('resultsSection')?.classList.add('hidden');
   });
 
   constSelect.addEventListener('change', async () => {
     const name = constSelect.value;
     predictBtn.disabled = !name;
-    document.getElementById('resultsSection').classList.add('hidden');
+    document.getElementById('resultsSection')?.classList.add('hidden');
 
     if (!name) {
-      document.getElementById('constituencyInfo').classList.add('hidden');
+      document.getElementById('demographicsCard')?.classList.add('hidden');
       return;
     }
 
     try {
       showSpinner();
       const data = await api.getConstituencyDetails(name);
-      const c = data.constituency;
-      document.getElementById('infoTitle').textContent = `Constituency Profile: ${c.name}, ${c.state}`;
-      document.getElementById('infoStats').innerHTML = `
-        <div class="stat-card">
-          <div class="stat-icon blue">📈</div>
-          <div class="stat-info">
-            <h3>${c.turnout}%</h3>
-            <p>Voter Turnout</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon green">👥</div>
-          <div class="stat-info">
-            <h3>${c.total_candidates}</h3>
-            <p>Total Candidates</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon purple">🏙️</div>
-          <div class="stat-info">
-            <h3>${(c.urban_rural_ratio * 100).toFixed(0)}%</h3>
-            <p>Urban Population</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon orange">📚</div>
-          <div class="stat-info">
-            <h3>${c.literacy_rate}%</h3>
-            <p>Literacy Rate</p>
-          </div>
-        </div>
-      `;
-      document.getElementById('constituencyInfo').classList.remove('hidden');
+      renderDemographics(data.constituency);
     } catch (err) {
       console.error('Failed to load constituency details:', err);
       showToast('Failed to load constituency details', 'error');
@@ -127,7 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const data = await api.predict(constituency, state, swing);
-      renderPrediction(data);
+      lastPredictionData = data;
+      renderPredictionResults(data);
       const resSection = document.getElementById('resultsSection');
       resSection.classList.remove('hidden');
       resSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -139,6 +110,20 @@ document.addEventListener('DOMContentLoaded', () => {
       hideSpinner();
     }
   });
+
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      if (!lastPredictionData) return;
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lastPredictionData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `votevision_forecast_${lastPredictionData.constituency.toLowerCase().replace(/\s+/g, '_')}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Forecast report exported successfully', 'success');
+    });
+  }
 });
 
 function applyMode(type) {
@@ -179,67 +164,89 @@ async function loadConstituencies() {
   }
 }
 
-function renderPrediction(data) {
+function renderDemographics(c) {
+  const card = document.getElementById('demographicsCard');
+  const grid = document.getElementById('demoGrid');
+  if (!card || !grid || !c) return;
+
+  grid.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-icon blue">📈</div>
+      <div class="stat-info">
+        <h3>${c.turnout}%</h3>
+        <p>Voter Turnout</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">👥</div>
+      <div class="stat-info">
+        <h3>${c.total_candidates}</h3>
+        <p>Total Candidates</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple">🏙️</div>
+      <div class="stat-info">
+        <h3>${(c.urban_rural_ratio * 100).toFixed(0)}%</h3>
+        <p>Urban Population</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange">📚</div>
+      <div class="stat-info">
+        <h3>${c.literacy_rate}%</h3>
+        <p>Literacy Rate</p>
+      </div>
+    </div>
+  `;
+  card.classList.remove('hidden');
+}
+
+function renderPredictionResults(data) {
   const preds = data.predictions || [];
   if (preds.length === 0) return;
 
   const winner = preds[0];
   const color = getPartyColor(winner.party);
-  const resultEl = document.getElementById('predictionResult');
-  const elLabel = data.election_type === 'assembly' ? 'Projected MLA' : 'Projected MP';
+  const initials = (winner.candidate_name || 'W').split(' ').map(w => w[0]).join('').slice(0, 2);
 
-  resultEl.innerHTML = `
-    <div class="prediction-winner">
-      <div class="candidate-avatar" style="background: ${color}; width: 56px; height: 56px; font-size: 1.4rem;">
-        ${winner.candidate_name.charAt(0)}
-      </div>
-      <div>
-        <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">${winner.candidate_name}</h3>
-        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-          <span class="party-tag" style="background: ${color}22; color: ${color};">
-            <span class="party-dot" style="background: ${color};"></span>
-            ${winner.party} (${winner.alliance})
-          </span>
-          <span class="winner-badge win">${elLabel}</span>
-        </div>
-      </div>
-    </div>
-    <div style="margin-bottom: 0.75rem;">
-      <span style="color: var(--text-secondary);">Constituency:</span>
-      <strong>${data.constituency}</strong>, ${data.state}
-    </div>
-    <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
-      <span style="color: var(--text-secondary);">Model Win Probability:</span>
-      <strong style="color: var(--accent-green); font-size: 1.1rem;">${winner.win_probability}%</strong>
-    </div>
-    <div class="confidence-bar" style="height: 10px;">
-      <div class="confidence-fill" style="width: ${winner.win_probability}%; background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));"></div>
-    </div>
-    <div style="margin-top: 0.75rem; display: flex; justify-content: space-between;">
-      <span style="color: var(--text-secondary);">Prediction Confidence:</span>
-      <strong>${winner.confidence}%</strong>
-    </div>
-    ${winner.predicted_margin !== undefined ? `
-      <div style="margin-top: 0.4rem; display: flex; justify-content: space-between;">
-        <span style="color: var(--text-secondary);">Estimated Lead Margin:</span>
-        <strong style="color: var(--accent-cyan);">+${winner.predicted_margin}%</strong>
-      </div>
-    ` : ''}
-    ${data.swing_adjustment !== 0 ? `
-      <div style="margin-top: 0.75rem; padding: 6px 12px; border-radius: 8px; background: rgba(6,182,212,0.1); color: var(--accent-cyan); font-size: 0.85rem;">
-        📐 Simulation Applied: ${data.swing_adjustment > 0 ? '+' : ''}${data.swing_adjustment}% sentiment shift
-      </div>
-    ` : ''}
-  `;
-
-  // Win Probability Comparison Chart
-  if (predChart) {
-    predChart.destroy();
-    predChart = null;
+  // Winner card
+  const avatarEl = document.getElementById('winnerAvatar');
+  if (avatarEl) {
+    avatarEl.style.background = color;
+    avatarEl.textContent = initials;
   }
-  const chartCanvas = document.getElementById('predictionChart');
+  document.getElementById('winnerName').textContent = winner.candidate_name;
+  document.getElementById('winnerParty').innerHTML = `
+    <span class="party-tag" style="background: ${color}22; color: ${color}; margin-top: 0.2rem;">
+      <span class="party-dot" style="background: ${color};"></span>
+      ${winner.party} (${winner.alliance || 'Other'})
+    </span>
+  `;
+  document.getElementById('winnerProb').textContent = `${winner.win_probability}%`;
+  document.getElementById('winnerProbBar').style.width = `${winner.win_probability}%`;
+
+  const confBadge = document.getElementById('winnerConfidenceBadge');
+  if (confBadge) {
+    confBadge.textContent = `${winner.explanation?.confidence_rating || 'High'} Confidence (${winner.confidence}%)`;
+  }
+
+  const marginLeadEl = document.getElementById('winnerMarginLead');
+  if (marginLeadEl) {
+    const runnerUp = preds[1];
+    marginLeadEl.innerHTML = runnerUp
+      ? `Lead margin over runner-up <strong>${runnerUp.candidate_name}</strong> (${runnerUp.party}): <strong style="color: var(--accent-cyan);">+${winner.predicted_margin ?? (winner.win_probability - runnerUp.win_probability).toFixed(1)}%</strong>`
+      : `Decisive lead across ${preds.length} candidates.`;
+  }
+
+  // Comparison Bar Chart
+  if (probChart) {
+    probChart.destroy();
+    probChart = null;
+  }
+  const chartCanvas = document.getElementById('probChart');
   if (chartCanvas) {
-    predChart = new Chart(chartCanvas, {
+    probChart = new Chart(chartCanvas, {
       type: 'bar',
       data: {
         labels: preds.map(p => p.candidate_name.split(' ').slice(0, 2).join(' ')),
@@ -263,7 +270,7 @@ function renderPrediction(data) {
           },
           x: {
             grid: { display: false },
-            ticks: { color: '#f1f5f9', font: { size: 11, weight: 600 } }
+            ticks: { color: '#f1f5f9', font: { size: 12, weight: 600 } }
           }
         },
         plugins: { legend: { display: false } },
@@ -272,29 +279,25 @@ function renderPrediction(data) {
     });
   }
 
-  // Explainable AI (XAI) Attribution Breakdown
+  // Explainable AI (XAI) feature attribution
   const xai = winner.explanation || {};
-  const summaryEl = document.getElementById('explainabilitySummary');
-  const ratingBadge = document.getElementById('confidenceRatingBadge');
-  const factorsGrid = document.getElementById('explainabilityFactorsGrid');
+  const narrativeEl = document.getElementById('xaiSummaryNarrative');
+  const factorsGrid = document.getElementById('xaiFactorsGrid');
 
-  if (summaryEl) {
-    summaryEl.textContent = xai.summary_assessment || 'Statistical model prediction computed from feature interactions.';
-  }
-  if (ratingBadge) {
-    ratingBadge.textContent = `Confidence: ${xai.confidence_rating || 'High'}`;
+  if (narrativeEl) {
+    narrativeEl.innerHTML = `<strong>Model Assessment:</strong> ${xai.summary_assessment || 'Multivariate decision trees evaluating historical baseline and demographics.'}`;
   }
 
   if (factorsGrid && xai.factors) {
     factorsGrid.innerHTML = xai.factors.map(f => {
-      const isPositive = f.impact_score >= 0;
-      const scoreColor = isPositive ? 'var(--accent-green)' : 'var(--accent-red)';
-      const sign = isPositive ? '+' : '';
+      const isPos = f.impact_score >= 0;
+      const sign = isPos ? '+' : '';
+      const scColor = isPos ? 'var(--accent-green)' : 'var(--accent-red)';
       return `
-        <div class="stat-card" style="padding: 1.2rem; flex-direction: column; gap: 0.5rem;">
-          <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-            <strong style="font-size: 0.9rem; color: var(--text-primary);">${f.factor}</strong>
-            <span style="font-weight: 700; color: ${scoreColor}; font-size: 0.95rem;">${sign}${f.impact_score}%</span>
+        <div class="stat-card" style="padding: 1rem; flex-direction: column; gap: 0.35rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <strong style="font-size: 0.88rem; color: var(--text-primary);">${f.factor}</strong>
+            <span style="font-weight: 700; color: ${scColor}; font-size: 0.9rem;">${sign}${f.impact_score}%</span>
           </div>
           <p style="font-size: 0.8rem; color: var(--text-secondary);">${f.description}</p>
         </div>
@@ -302,8 +305,8 @@ function renderPrediction(data) {
     }).join('');
   }
 
-  // Candidate Breakdown Table
-  const tbody = document.querySelector('#candidateBreakdown tbody');
+  // Table
+  const tbody = document.getElementById('candidatesTableBody');
   if (tbody) {
     tbody.innerHTML = '';
     preds.forEach(p => {
@@ -319,8 +322,8 @@ function renderPrediction(data) {
         </td>
         <td><span style="color: var(--text-secondary);">${p.alliance || 'Other'}</span></td>
         <td>${p.previous_vote_share ? p.previous_vote_share.toFixed(1) + '%' : '—'}</td>
+        <td>${p.incumbency ? '✓ Sitting MP/MLA' : 'Challenger'}</td>
         <td><strong style="color: var(--accent-green);">${p.win_probability}%</strong></td>
-        <td>${p.confidence}%</td>
         <td>
           ${p.predicted_winner ? '<span class="winner-badge win">Projected Winner</span>' : '<span style="color:var(--text-muted)">Runner-up</span>'}
         </td>

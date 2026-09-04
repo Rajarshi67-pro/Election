@@ -22,6 +22,7 @@
       <li><a href="dashboard.html">Dashboard</a></li>
       <li><a href="constituency.html">Predict</a></li>
       <li><a href="candidates.html">Candidates</a></li>
+      <li><a href="compare.html">Compare</a></li>
     </ul>
   </nav>
 
@@ -59,67 +60,85 @@
               <span class="slider-value" id="swingLabel">0.0%</span>
             </label>
             <input type="range" id="swingSlider" min="-10" max="10" step="0.5" value="0">
-            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
-              <span>-10% (Opposition Swing)</span>
-              <span>Neutral (0%)</span>
-              <span>+10% (Incumbent/Ruling Swing)</span>
-            </div>
           </div>
 
-          <div style="margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-            <button class="btn btn-primary" id="predictBtn" disabled>🔮 Forecast Outcome</button>
+          <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="predictBtn" disabled>🔮 Run Forecast</button>
             <button class="btn btn-secondary btn-sm" id="resetSwingBtn">Reset Swing</button>
           </div>
         </div>
 
-        <!-- Constituency Demographics Card -->
-        <div class="card mt-3 hidden" id="constituencyInfo">
-          <h3 style="margin-bottom: 1rem;" id="infoTitle">Constituency Profile</h3>
-          <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));" id="infoStats"></div>
+        <!-- Demographic Context Card -->
+        <div class="card mt-4 hidden" id="demographicsCard">
+          <h3 style="margin-bottom: 1rem;">📍 Constituency Profile & Demographic Indicators</h3>
+          <div class="stat-grid" id="demoGrid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));"></div>
         </div>
 
-        <!-- Results Section -->
-        <div class="hidden mt-4" id="resultsSection">
-          <div class="two-col">
-            <!-- Predicted Winner Card -->
-            <div class="prediction-result" id="predictionResult"></div>
-
-            <!-- Probability Chart -->
-            <div class="chart-container">
-              <h3>📊 Comparative Win Probability</h3>
-              <div class="chart-wrapper">
-                <canvas id="predictionChart"></canvas>
+        <!-- Prediction Results -->
+        <div class="mt-4 hidden" id="resultsSection">
+          <!-- Projected Winner Summary Card -->
+          <div class="prediction-result mb-4" id="winnerCard">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+              <div class="prediction-winner" style="margin-bottom: 0; padding-bottom: 0; border: none;">
+                <div class="candidate-avatar" id="winnerAvatar" style="width: 64px; height: 64px; font-size: 1.5rem;">👑</div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="winner-badge win">Projected Winner</span>
+                    <span id="winnerConfidenceBadge" class="winner-badge" style="background: rgba(59, 130, 246, 0.2); color: var(--accent-cyan);">High Confidence</span>
+                  </div>
+                  <h3 id="winnerName" style="font-size: 1.5rem; margin-top: 0.3rem;">--</h3>
+                  <p id="winnerParty" style="color: var(--text-secondary); font-size: 0.95rem;">--</p>
+                </div>
+              </div>
+              <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                <div>
+                  <div style="font-size: 2.2rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: var(--accent-green);" id="winnerProb">--%</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Calibrated Win Probability</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="exportReportBtn">📥 Export Brief (JSON)</button>
               </div>
             </div>
-          </div>
-
-          <!-- Explainable AI (XAI) Attribution Card -->
-          <div class="card mt-4" id="explainabilityCard">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3>🧠 Explainable AI – Prediction Factor Attribution</h3>
-              <span class="winner-badge win" id="confidenceRatingBadge">Confidence: High</span>
+            <div class="confidence-bar" style="height: 10px; margin-top: 1.25rem;">
+              <div class="confidence-fill" id="winnerProbBar" style="background: var(--gradient-accent); width: 0%;"></div>
             </div>
-            <p id="explainabilitySummary" style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.5;"></p>
-            <div id="explainabilityFactorsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;"></div>
+            <p id="winnerMarginLead" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.75rem;">--</p>
           </div>
 
-          <!-- Candidates Breakdown Table -->
-          <div class="chart-container mt-4">
-            <h3>📋 All Contestants & Statistical Breakdown</h3>
+          <!-- Probability Comparison Chart -->
+          <div class="card mb-4">
+            <h3 style="margin-bottom: 1rem;">📊 Candidate Win Probability Comparison</h3>
+            <div class="chart-wrapper" style="max-height: 280px;">
+              <canvas id="probChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Explainable AI (XAI) Attribution Breakdown -->
+          <div class="card mb-4" style="background: var(--gradient-card);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3>🧠 Explainable AI (XAI) Feature Attribution</h3>
+              <span class="winner-badge win">Interpretable ML</span>
+            </div>
+            <p id="xaiSummaryNarrative" style="color: var(--text-primary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;"></p>
+            <div id="xaiFactorsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;"></div>
+          </div>
+
+          <!-- Full Candidate Contestants Table -->
+          <div class="card">
+            <h3 style="margin-bottom: 1rem;">👥 All Contesting Candidates Breakdown</h3>
             <div style="overflow-x: auto;">
-              <table class="data-table" id="candidateBreakdown">
+              <table class="data-table">
                 <thead>
                   <tr>
                     <th>Candidate</th>
                     <th>Party</th>
                     <th>Alliance</th>
-                    <th>Baseline Share</th>
-                    <th>Win Prob.</th>
-                    <th>Confidence</th>
-                    <th>Model Call</th>
+                    <th>Baseline Vote Share</th>
+                    <th>Incumbent</th>
+                    <th>Win Probability</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody id="candidatesTableBody"></tbody>
               </table>
             </div>
           </div>
